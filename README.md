@@ -35,7 +35,7 @@ Nos permite verificar si hay o no conexión a Internet. Solo se instancia la cla
 # - JSONResponse.class
 
 
-Nos permite manejar la respuesta y manipulas los datos de las películas.
+Nos permite manejar la respuesta y manipulas los datos de las rutas.
 # - MainActivity
 
 Es la actividad principal donde contiene el fragment  MainActivityFragment donde nos permite visualizar las rutas.
