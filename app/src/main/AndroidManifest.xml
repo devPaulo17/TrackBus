@@ -42,7 +42,6 @@
 
         <activity
             android:name=".Activitys.DetailMapsActivity"
-            android:label="@string/title_activity_detail_maps"
             android:theme="@style/MyMaterialTheme"
             android:parentActivityName="paul.dev.trackbus.MainActivity" >
             <!-- Parent activity meta-data to support 4.0 and lower -->

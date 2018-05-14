@@ -2,4 +2,6 @@
     <string name="app_name">Track Bus</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_detail_maps">Map</string>
+    <string name="label_estimate_time">Tiempo Estimado:</string>
+    <string name="label_start">Origen:</string>
 </resources>

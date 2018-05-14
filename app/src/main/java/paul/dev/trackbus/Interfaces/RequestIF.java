@@ -1,5 +1,6 @@
 package paul.dev.trackbus.Interfaces;
 
+import paul.dev.trackbus.Models.Bus;
 import paul.dev.trackbus.Utils.JSONResponse;
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -16,7 +17,7 @@ public interface RequestIF {
     Call<JSONResponse> getJSON();
 
     @GET("{id}")
-    Call<JSONResponse> getDetailBus(@Path("id") String id);
+    Call<Bus> getDetailBus(@Path("id") String id);
 
 
 

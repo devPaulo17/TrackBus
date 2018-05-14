@@ -1,5 +1,11 @@
 package paul.dev.trackbus.Models;
 
+import org.json.JSONObject;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by paulotrujillo on 5/12/18.
  */
@@ -11,18 +17,22 @@ public class Bus {
     private String description;
     private String stops_url;
     private String img_url;
+    private List<CoordinatesBus> stops = new ArrayList<>();
     private float lat;
     private float lng;
+    private float estimated_time_milliseconds;
+    private float retry_time_milliseconds;
 
-    public Bus(int id, String name, String description, String stops_url, String img_url,float lat, float lng){
+    public Bus(int id, String name, String description, String stops_url, String img_url,int estimated_time_milliseconds,int retry_time_milliseconds){
 
         this.id = id;
         this.name = name;
         this.description = description;
         this.stops_url = stops_url;
         this.img_url = img_url;
-        this.setLat(lat);
-        this.setLng(lng);
+        this.estimated_time_milliseconds = estimated_time_milliseconds;
+        this.retry_time_milliseconds = retry_time_milliseconds;
+
 
     }
 
@@ -80,5 +90,26 @@ public class Bus {
 
     public void setLng(float lng) {
         this.lng = lng;
+    }
+
+    public float getEstimated_time_milliseconds() {
+        return estimated_time_milliseconds;
+    }
+
+    public void setEstimated_time_milliseconds(float estimated_time_milliseconds) {
+        this.estimated_time_milliseconds = estimated_time_milliseconds;
+    }
+
+    public float getRetry_time_milliseconds() {
+        return retry_time_milliseconds;
+    }
+
+    public void setRetry_time_milliseconds(float retry_time_milliseconds) {
+        this.retry_time_milliseconds = retry_time_milliseconds;
+    }
+
+
+    public List<CoordinatesBus> getStops() {
+        return stops;
     }
 }

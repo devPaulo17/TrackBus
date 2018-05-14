@@ -1,21 +1,19 @@
 package paul.dev.trackbus.Activitys;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.transition.Explode;
 import android.util.Log;
 import android.view.Window;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.ConnectionResultCreator;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -29,17 +27,24 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RoundCap;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
-import paul.dev.trackbus.Adapters.DataAdapter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import paul.dev.trackbus.Interfaces.RequestIF;
+import paul.dev.trackbus.Models.Bus;
+import paul.dev.trackbus.Models.CoordinatesBus;
 import paul.dev.trackbus.R;
 import paul.dev.trackbus.Utils.JSONResponse;
 import retrofit2.Call;
@@ -52,7 +57,7 @@ public class DetailMapsActivity extends AppCompatActivity  implements
         OnMapReadyCallback{
 
     private static final int COLOR_BLACK_ARGB = 0xff000000;
-    private static final int POLYLINE_STROKE_WIDTH_PX = 6;
+    private static final int POLYLINE_STROKE_WIDTH_PX = 4;
 
     private String name;
     private String description;
@@ -60,8 +65,15 @@ public class DetailMapsActivity extends AppCompatActivity  implements
     private String idBus;
 
 
+    private TextView txvOrigen;
+    private TextView txvEstimedTime;
+
+
+
 
     ArrayList<LatLng> coordList;
+    JSONArray array = null;
+
     private Marker start;
     private Marker stateCurrent;
 
@@ -74,18 +86,25 @@ public class DetailMapsActivity extends AppCompatActivity  implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_maps);
 
-        Toolbar toolbar = (Toolbar)  findViewById(R.id.toolbar);
+        txvOrigen = (TextView) findViewById(R.id.origen);
+        txvEstimedTime = (TextView) findViewById(R.id.estimed_time);
+
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationIcon(R.drawable.close);
+
 
         name = getIntent().getStringExtra("name");
         description = getIntent().getStringExtra("description");
         stop_url = getIntent().getStringExtra("stops_url");
+        txvOrigen.setText(description);
 
         idBus = cutURL(stop_url);
 
-        getSupportActionBar().setTitle("Hola");
+
 
 
 
@@ -117,20 +136,30 @@ public class DetailMapsActivity extends AppCompatActivity  implements
                 .baseUrl("https://api.myjson.com/bins/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        RequestIF request = retrofit.create(RequestIF.class);
-        Call<JSONResponse> call = request.getDetailBus(idBus);
-        call.enqueue(new Callback<JSONResponse>() {
+        final RequestIF request = retrofit.create(RequestIF.class);
+        Call<Bus> call = request.getDetailBus(idBus);
+        call.enqueue(new Callback<Bus>() {
+            @TargetApi(Build.VERSION_CODES.KITKAT)
             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
             @Override
-            public void onResponse(Call<JSONResponse> call, Response<JSONResponse> response) {
+            public void onResponse(Call<Bus> call, Response<Bus> response) {
 
-                JSONResponse jsonResponse = response.body();
+                Bus jsonResponse = response.body();
+                 HashMap<String, String> stats = null;
 
-                for (int i = 0; i < jsonResponse.getDetailBuses().length; i++) {
 
-                    coordList.add(new LatLng(jsonResponse.getDetailBuses()[i].getLat(), jsonResponse.getDetailBuses()[i].getLng()));
+                long minutes = TimeUnit.MILLISECONDS.toMinutes((long) jsonResponse.getEstimated_time_milliseconds());
+
+                txvEstimedTime.setText(minutes + " minutos");
+
+                for (int i = 0; i < jsonResponse.getStops().size(); i++) {
+
+
+                    coordList.add(new LatLng(jsonResponse.getStops().get(i).getLat(),jsonResponse.getStops().get(i).getLng()));
 
                 }
+
+
 
 
                 // Add a marker in Sydney and move the camera
@@ -149,12 +178,14 @@ public class DetailMapsActivity extends AppCompatActivity  implements
 
                 start = googleMap.addMarker(new MarkerOptions().position(startBus)
                         .title(description)
+                        .position(startBus)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.school)));
 
                 start.showInfoWindow();
 
                 stateCurrent = googleMap.addMarker(new MarkerOptions().position(current)
                         .title(name)
+                        .position(current)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));
 
                 stateCurrent.showInfoWindow();
@@ -169,12 +200,14 @@ public class DetailMapsActivity extends AppCompatActivity  implements
                 int height = getResources().getDisplayMetrics().heightPixels;
                 int padding = (int) (width * 0.30); // offset from edges of the map 10% of screen
 
+                googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+
                 CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
 
                 googleMap.animateCamera(cu);
 
 
-                googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
 
                 // Set listeners for click events.
@@ -184,10 +217,16 @@ public class DetailMapsActivity extends AppCompatActivity  implements
             }
 
             @Override
-            public void onFailure(Call<JSONResponse> call, Throwable t) {
+            public void onFailure(Call<Bus> call, Throwable t) {
                 Log.w("Error",t.getMessage());
             }
         });
+
+    }
+
+
+    private void getCoordenates(ArrayList jsonResponse) throws JSONException {
+
 
 
 
