@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.transition.Explode;
@@ -14,6 +15,7 @@ import android.view.Window;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -90,11 +92,17 @@ public class DetailMapsActivity extends AppCompatActivity  implements
         txvEstimedTime = (TextView) findViewById(R.id.estimed_time);
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        if (android.os.Build.VERSION.SDK_INT > 20) {
+            Window window = getWindow();
+            Explode t0 = new Explode();
+            window.setEnterTransition(t0);
+        }
+
+           Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationIcon(R.drawable.close);
+        toolbar.setNavigationIcon(R.mipmap.close);
 
 
         name = getIntent().getStringExtra("name");
@@ -108,11 +116,9 @@ public class DetailMapsActivity extends AppCompatActivity  implements
 
 
 
-        Window window = getWindow();
-        Explode t0 = new Explode();
-        window.setEnterTransition(t0);
 
-        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
+
+        int status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext());
 
         if(status == ConnectionResult.SUCCESS) {
 
@@ -120,7 +126,7 @@ public class DetailMapsActivity extends AppCompatActivity  implements
                     .findFragmentById(R.id.map);
             mapFragment.getMapAsync(this);
         }else{
-            Dialog dialog =  GooglePlayServicesUtil.getErrorDialog(status,(Activity)getApplicationContext(),10);
+            Dialog dialog =  GoogleApiAvailability.getInstance().getErrorDialog (this, status, 1);
             dialog.show();
         }
     }
@@ -179,14 +185,14 @@ public class DetailMapsActivity extends AppCompatActivity  implements
                 start = googleMap.addMarker(new MarkerOptions().position(startBus)
                         .title(description)
                         .position(startBus)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.school)));
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.school)));
 
                 start.showInfoWindow();
 
                 stateCurrent = googleMap.addMarker(new MarkerOptions().position(current)
                         .title(name)
                         .position(current)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.bus)));
 
                 stateCurrent.showInfoWindow();
 

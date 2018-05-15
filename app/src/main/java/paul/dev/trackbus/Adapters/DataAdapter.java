@@ -72,10 +72,9 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> im
             intent.putExtra("description" , description);
             intent.putExtra("stops_url" , stop_url);
 
+            itemView.getContext().startActivity(intent);
 
 
-
-            itemView.getContext().startActivity(intent, ActivityOptions.makeSceneTransitionAnimation((Activity)mContext).toBundle());
         }
     }
 
